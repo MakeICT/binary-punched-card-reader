@@ -7,22 +7,29 @@ import espeak.core as voice
 import signal, sys
 import subprocess
 
-def sayGoodbyeAndExit(signal=None, frame=None):
+inputPins = [ 1, 2, 3, 4, 5 ]
+shutdownPin = 6
+
+def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 	voice.synth("Goodbye!")
+	if shutdown:
+		subprocess.call('poweroff')
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
 
 wiringpi2.wiringPiSetupPhys()
-inputPins = [ 1, 2, 3, 4, 5 ]
 
 for pin in inputPins:
 	wiringpi2.pinMode(pin, 0)
 
 pinStates = [ 0 ] * len(inputPins)
 buffer = ""
-try{
+try:
 	while True:
+		if wiringPi2.digitalRead(shutdownPin) == 1:
+			sayGoodbyeAndExit(shutdown=True)
+			
 		for pin in inputPins:
 			pinStates[i] = pinStates[i] or wiringPi2.digitalRead(pin)
 			
