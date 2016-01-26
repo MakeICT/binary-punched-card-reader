@@ -31,6 +31,12 @@ for pin in inputPins:
 pinStates = [ 0 ] * len(inputPins)
 buffer = ''
 try:
+	screenTools.showIntro()
+	if helpMode:
+		screenTools.showBinaryTable()
+	else:
+		screenTools.showEncodingTable()
+		
 	while True:
 		if wiringPi2.digitalRead(shutdownPin) == 1:
 			sayGoodbyeAndExit(shutdown=True)
