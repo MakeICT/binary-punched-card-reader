@@ -22,7 +22,7 @@ def renderFancy(text, font='mono12', rainbow=True, startLine=0, endLine=None):
 		print(output)
 		
 def display(text):
-	gotoOutputArea()
+	gotoOutputArea(1, 22)
 	renderFancy(text, 'mono9', endLine=7)
 
 def gotoOutputArea(x=1, y=22):
@@ -52,7 +52,8 @@ def showIntro():
 	renderFancy(' Binary   Punched   Card   Reader', 'smblock', False, endLine=4)
 	print()
 	
-def showTable():
+def showBinaryTable():
+	gotoOutputArea(1, 14)
 	table = []
 	buffer = ''
 	for c in range(26):
@@ -68,23 +69,37 @@ def showTable():
 			buffer += '%s ' %  table[c][d]
 		renderCentered(buffer, 4)
 
+def showEncodingTable():
+	gotoOutputArea(1, 14)
+	buffer = ['               '] * 7
+	for c in range(26):
+		buffer[c % 7] += chr(c + ord('a')) + ' ' + str(c).rjust(2) + '               '
+	buffer[5] += '                   '
+	buffer[6] += '                   '
+		
+	for l in buffer:
+		renderCentered(l)
+	#renderCentered(buffer, 4)
+	#renderCentered('-----------------------------------------------------')
+	
+
 if __name__ == "__main__":
 	import time
 	import espeak
 	import espeak.core as voice
 
 	showIntro()
-	showTable()
+	showEncodingTable()
 	buff = ''
 	time.sleep(1)
-	for l in 'Dominic':
+	for l in 'You can do it!':
 		gotoOutputArea()
 		buff += l
-		voice.synth(l)
+		#voice.synth(l)
 		renderFancy(buff, 'mono9')
 		time.sleep(.1)
 	time.sleep(1)
-	voice.synth(buff)
+	#voice.synth(buff)
 	time.sleep(1)
 	print('')
-	
+

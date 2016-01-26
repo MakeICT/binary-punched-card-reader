@@ -10,6 +10,7 @@ import screentools
 
 inputPins = [ 1, 2, 3, 4, 5 ]
 shutdownPin = 6
+helpMode = False
 
 def display(msg):
 	screentools.display(msg)
@@ -22,7 +23,6 @@ def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 	sys.exit(0)
 	
 signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
-
 
 wiringpi2.wiringPiSetupPhys()
 for pin in inputPins:
@@ -51,7 +51,16 @@ try:
 			# reset pin buffer
 			pinStates = [ 0 ] * len(inputPins)
 		elif sum(pinStates) >= len(inputPins):
-			display(buffer)
+			if buffer == 'uuddlrlrbas':
+				helpMode = not helpMode
+				if helpMode:
+					screentools.showBinaryTable()
+					display('I can help!')
+				else:
+					screentools.showEncodingTableTable()
+					display('You can do it!')
+			else:
+				display(buffer)
 			buffer = ""
 			
 except KeyboardInterrupt:
