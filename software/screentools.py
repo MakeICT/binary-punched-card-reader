@@ -17,7 +17,7 @@ def renderFancy(text, font='mono12', rainbow=True, startLine=0, endLine=None):
 		endLine = len(lines)
 
 	output = "\n".join(lines[startLine:endLine])
-	if rainbow:
+	if rainbow and False:
 		p = subprocess.Popen(['lolcat'], stdin=subprocess.PIPE)
 		p.communicate(output.encode())
 	else:

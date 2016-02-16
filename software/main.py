@@ -17,7 +17,7 @@ def display(msg, pronounced=None):
 	speak(pronounced)
 
 def speak(pronounced):
-	os.system('espeak -ven "%s" 2>/dev/null | aplay -q > /dev/null 2>&1' % pronounced)
+	os.system('espeak -ven "%s" 2>/dev/null | aplay -q > /dev/null 2>&1 &' % pronounced)
 
 def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 	display("Goodbye!")
@@ -69,7 +69,7 @@ try:
 					# reset pin buffer
 					holeStates = [ 0 ] * len(inputPins)
 			elif not textCleared:
-				speak('redraw')
+#				speak('redraw')
 				resetScreen()
 				textCleared = True
 				notYetDisplayed = True
@@ -85,7 +85,7 @@ try:
 				else:
 					screentools.showEncodingTableTable()
 					display('You can do it!')
-			else:
+			elif buffer != '':
 				display(buffer)
 				textCleared = False
 			notYetDisplayed = True
