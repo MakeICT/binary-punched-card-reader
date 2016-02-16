@@ -75,7 +75,7 @@ def showEncodingTable():
 	gotoOutputArea(1, 21)
 	buffer = ['               '] * 7
 	for c in range(26):
-		buffer[c % 7] += chr(c + ord('a')) + ' ' + str(c).rjust(2) + '               '
+		buffer[c % 7] += chr(c + ord('a')) + ' ' + str(c + 1).rjust(2) + '               '
 	buffer[5] += '                   '
 	buffer[6] += '                   '
 		
