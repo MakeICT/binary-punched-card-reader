@@ -4,33 +4,34 @@ import shutil
 import sys, os
 import subprocess
 
+screenWidth = int(subprocess.check_output(['tput', 'cols']))
+
 def renderFancy(text, font='mono12', rainbow=True, startLine=0, endLine=None):
-	output = subprocess.check_output(['figlet', '-ctf', font, text]).decode('utf-8')
+	output = subprocess.check_output(['figlet', '-cf', font, '-w', str(screenWidth), text]).decode('utf-8')
 	generatedLines = output.split('\n')
 	lines = []
 	for l in generatedLines:
-		if l.strip() != "":
-			lines.append(l)
+		lines.append(l)
 			
 	if endLine is None:
 		endLine = len(lines)
 
 	output = "\n".join(lines[startLine:endLine])
 	if rainbow:
-		os.system('echo "%s" | lolcat' % output)
+		p = subprocess.Popen(['lolcat'], stdin=subprocess.PIPE)
+		p.communicate(output.encode())
 	else:
 		print(output)
 		
 def display(text):
-	gotoOutputArea(1, 22)
-	renderFancy(text, 'mono9', endLine=7)
+	gotoOutputArea()
+	renderFancy(text, 'ascii9')
 
-def gotoOutputArea(x=1, y=22):
+def gotoOutputArea(x=1, y=30):
 	code = "\x1b7\x1b[%d;%df" % (y, x)
 	print(code + '\n' + code, end='')
 
 def renderCentered(text, colorEvery=None):
-	columns = shutil.get_terminal_size().columns
 	textLength = len(text)
 	
 	if colorEvery is not None:
@@ -41,23 +42,24 @@ def renderCentered(text, colorEvery=None):
 			else:
 				output += text[i]
 		text = output
-	print(' ' * int((columns - textLength) / 2) + text)
+	print(' ' * int((screenWidth - textLength) / 2) + text)
 
 
 
 def showIntro():
 	gotoOutputArea(1, 1)
 	print(chr(27) + "[2J")
-	renderFancy('MakeICT', 'mono12', startLine=0, endLine=8)
-	renderFancy(' Binary   Punched   Card   Reader', 'smblock', False, endLine=4)
+	renderFancy('MakeICT', 'bigascii12', startLine=0, endLine=15)
+	renderFancy('Binary  Punched  Card  Reader', 'pagga', False)
 	print()
 	
 def showBinaryTable():
-	gotoOutputArea(1, 14)
+	gotoOutputArea(1, 21)
 	table = []
 	buffer = ''
 	for c in range(26):
-		table.append(bin(c)[2:].zfill(5))
+		# convert to binary, pad zeroes, reverse it
+		table.append(bin(c+1)[2:].zfill(5)[::-1])
 		buffer += chr(c + ord('a')) + ' '
 		
 	renderCentered(buffer, 4)
@@ -70,7 +72,7 @@ def showBinaryTable():
 		renderCentered(buffer, 4)
 
 def showEncodingTable():
-	gotoOutputArea(1, 14)
+	gotoOutputArea(1, 21)
 	buffer = ['               '] * 7
 	for c in range(26):
 		buffer[c % 7] += chr(c + ord('a')) + ' ' + str(c).rjust(2) + '               '

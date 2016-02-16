@@ -1,20 +1,23 @@
 #!/usr/bin/python3
 
 import wiringpi2
-import espeak
-import espeak.core as voice
-
-import signal, sys, os
-
+import signal, sys, os, time
 import screentools
 
-inputPins = [ 1, 2, 3, 4, 5 ]
-shutdownPin = 6
+inputPins = [ 22, 23, 4, 17, 27 ]
+shutdownPin = 3
 helpMode = False
+textCleared = False
+notYetDisplayed = True
 
-def display(msg):
+def display(msg, pronounced=None):
+	if pronounced is None:
+		pronounced = msg
 	screentools.display(msg)
-	voice.synth(msg)
+	speak(pronounced)
+
+def speak(pronounced):
+	os.system('espeak -ven "%s" 2>/dev/null | aplay -q > /dev/null 2>&1' % pronounced)
 
 def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 	display("Goodbye!")
@@ -22,41 +25,58 @@ def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 		os.system('poweroff')
 	sys.exit(0)
 	
-signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
+def resetScreen():
+	screentools.showIntro()
+	if helpMode:
+		screentools.showBinaryTable()
+	else:
+		screentools.showEncodingTable()
 
-wiringpi2.wiringPiSetupPhys()
+signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
+wiringpi2.wiringPiSetupGpio()
+
 for pin in inputPins:
 	wiringpi2.pinMode(pin, 0)
 
-pinStates = [ 0 ] * len(inputPins)
+holeStates = [ 0 ] * len(inputPins)
 buffer = ''
+resetScreen()
 try:
-	screenTools.showIntro()
-	if helpMode:
-		screenTools.showBinaryTable()
-	else:
-		screenTools.showEncodingTable()
-		
 	while True:
-		if wiringPi2.digitalRead(shutdownPin) == 1:
-			sayGoodbyeAndExit(shutdown=True)
-			
-		for pin in inputPins:
-			pinStates[i] = pinStates[i] or wiringPi2.digitalRead(pin)
-			
-		if sum(pinStates) == 0:
-			# calculate current input
-			value = 0
-			for place, digit in enumerate(pinStates):
-				value += pow(2, place) * digit
-				
-			# decode it and append it to the buffer
-			buffer += chr(value + ord('a'))
-			display(buffer)
-			
-			# reset pin buffer
-			pinStates = [ 0 ] * len(inputPins)
-		elif sum(pinStates) >= len(inputPins):
+		if wiringpi2.digitalRead(shutdownPin) == 0:
+			pass
+			#sayGoodbyeAndExit(shutdown=True)
+		
+		pinStates = [ 0 ] * len(inputPins)
+		for (i, pin) in enumerate(inputPins):
+			pinStates[i] = wiringpi2.digitalRead(pin)
+			holeStates[i] = holeStates[i] or not pinStates[i]
+
+		if sum(pinStates) == 5:
+			if sum(holeStates) > 0:
+				if notYetDisplayed:
+					notYetDisplayed = False
+					# calculate current input
+					value = 0
+					for place, digit in enumerate(holeStates):
+						value += pow(2, place) * digit
+						
+					# decode it and append it to the buffer
+					currentChar = chr(value + ord('a') - 1)
+					buffer += currentChar
+					display(buffer, pronounced = currentChar)
+					
+					# reset pin buffer
+					holeStates = [ 0 ] * len(inputPins)
+			elif not textCleared:
+				speak('redraw')
+				resetScreen()
+				textCleared = True
+				notYetDisplayed = True
+			else:
+				notYetDisplayed = True
+
+		elif sum(pinStates) == 0:
 			if buffer == 'uuddlrlrbas':
 				helpMode = not helpMode
 				if helpMode:
@@ -67,7 +87,9 @@ try:
 					display('You can do it!')
 			else:
 				display(buffer)
-			buffer = ""
+				textCleared = False
+			notYetDisplayed = True
+			buffer = ''
 			
 except KeyboardInterrupt:
 	sayGoodbyeAndExit()
