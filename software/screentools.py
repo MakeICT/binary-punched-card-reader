@@ -5,29 +5,32 @@ import sys, os
 import subprocess
 
 screenWidth = int(subprocess.check_output(['tput', 'cols']))
+charWidths = {
+	'bigascii12': 9,
+	'mono12': 9,
+	'pagga': 4,	
+}
 
-def renderFancy(text, font='mono12', rainbow=True, startLine=0, endLine=None):
-	output = subprocess.check_output(['figlet', '-cf', font, '-w', str(screenWidth), text]).decode('utf-8')
-	generatedLines = output.split('\n')
-	lines = []
-	for l in generatedLines:
-		lines.append(l)
-			
-	if endLine is None:
-		endLine = len(lines)
-
-	output = "\n".join(lines[startLine:endLine])
-	if rainbow and False:
-		p = subprocess.Popen(['lolcat'], stdin=subprocess.PIPE)
-		p.communicate(output.encode())
+def renderFancy(text, font='mono12', rainbow=True):
+	if not rainbow:
+		p = subprocess.Popen(['figlet', '-ctf', font], stdin=subprocess.PIPE)
+		p.communicate(text.encode())
 	else:
-		print(output)
+		p2 = subprocess.Popen(['figlet', '-ctf', font], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		text, errors = p2.communicate(text.encode())
+		p = subprocess.Popen(['toilet', '-tf', 'term', '--gay'], stdin=subprocess.PIPE)
+		p.communicate(text)
 		
-def display(text):
+def display(text, clear=False):
 	gotoOutputArea()
-	renderFancy(text, 'ascii9')
+	renderFancy(text, 'mono9')
 
-def gotoOutputArea(x=1, y=30):
+def clear():
+	gotoOutputArea()
+	for i in range(17):
+		print(' ' * screenWidth)
+
+def gotoOutputArea(x=1, y=23):
 	code = "\x1b7\x1b[%d;%df" % (y, x)
 	print(code + '\n' + code, end='')
 
@@ -49,12 +52,12 @@ def renderCentered(text, colorEvery=None):
 def showIntro():
 	gotoOutputArea(1, 1)
 	print(chr(27) + "[2J")
-	renderFancy('MakeICT', 'bigascii12', startLine=0, endLine=15)
+	renderFancy('MakeICT')
 	renderFancy('Binary  Punched  Card  Reader', 'pagga', False)
 	print()
 	
 def showBinaryTable():
-	gotoOutputArea(1, 21)
+	gotoOutputArea(1, 16)
 	table = []
 	buffer = ''
 	for c in range(26):
@@ -72,7 +75,7 @@ def showBinaryTable():
 		renderCentered(buffer, 4)
 
 def showEncodingTable():
-	gotoOutputArea(1, 21)
+	gotoOutputArea(1, 16)
 	buffer = ['               '] * 7
 	for c in range(26):
 		buffer[c % 7] += chr(c + ord('a')) + ' ' + str(c + 1).rjust(2) + '               '
