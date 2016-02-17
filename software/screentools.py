@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import shutil
 import sys, os
 import subprocess
 

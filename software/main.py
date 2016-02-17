@@ -2,8 +2,9 @@
 
 import wiringpi2
 import signal, sys, os, time
-import screentools
 import threading
+
+import screentools
 
 inputPins = [ 22, 23, 4, 17, 27 ]
 shutdownPin = 3

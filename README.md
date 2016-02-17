@@ -3,7 +3,7 @@
 Teaches kids about binary numbers as well as data encoding/decoding.
 
 ## Software Dependencies ##
-    sudo apt-get install python3-espeak figlet lolcat
+    sudo apt-get install espeak figlet toilet
     sudo dpkg-reconfigure console-setup
 
 ## Authors ##
