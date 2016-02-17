@@ -5,29 +5,24 @@ import sys, os
 import subprocess
 
 screenWidth = int(subprocess.check_output(['tput', 'cols']))
-charWidths = {
-	'bigascii12': 9,
-	'mono12': 9,
-	'pagga': 4,	
-}
 
 def renderFancy(text, font='mono12', rainbow=True):
 	if not rainbow:
-		p = subprocess.Popen(['figlet', '-ctf', font], stdin=subprocess.PIPE)
+		p = subprocess.Popen(['figlet', '-cf', font, '-w', str(screenWidth)], stdin=subprocess.PIPE)
 		p.communicate(text.encode())
 	else:
-		p2 = subprocess.Popen(['figlet', '-ctf', font], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		p2 = subprocess.Popen(['figlet', '-ctf', font, '-w', str(screenWidth)], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 		text, errors = p2.communicate(text.encode())
-		p = subprocess.Popen(['toilet', '-tf', 'term', '--gay'], stdin=subprocess.PIPE)
+		p = subprocess.Popen(['toilet', '-w', str(screenWidth), '-f', 'term', '--gay'], stdin=subprocess.PIPE)
 		p.communicate(text)
 		
-def display(text, clear=False):
+def display(text):
 	gotoOutputArea()
 	renderFancy(text, 'mono9')
 
 def clear():
 	gotoOutputArea()
-	for i in range(17):
+	for i in range(25):
 		print(' ' * screenWidth)
 
 def gotoOutputArea(x=1, y=23):
@@ -84,8 +79,6 @@ def showEncodingTable():
 		
 	for l in buffer:
 		renderCentered(l)
-	#renderCentered(buffer, 4)
-	#renderCentered('-----------------------------------------------------')
 	
 
 if __name__ == "__main__":
