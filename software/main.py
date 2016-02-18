@@ -45,19 +45,19 @@ def checkPins():
 			holeStates[i] = holeStates[i] or not pinStates[i]
 
 		if sum(pinStates) == 5:
-			if sum(holeStates) > 0:
+			if sum(holeStates) > 0 and sum(holeStates) < 5:
 				# calculate current input
 				value = 0
 				for place, digit in enumerate(holeStates):
-					value += pow(2, place) * digit
+					value += pow(2, len(holeStates)-place-1) * digit
 					
 				# decode it and append it to the buffer
 				currentChar = chr(value + ord('a') - 1)
 				buffer += currentChar
 				
 				# reset hole buffer
-				holeStates = [ 0 ] * len(inputPins)
-#				time.sleep(0.01)
+			holeStates = [ 0 ] * len(inputPins)
+			time.sleep(0.01)
 
 	
 signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
@@ -86,18 +86,23 @@ try:
 				display(buffer[0:bufferReadTo+counter], pronounced=c)
 			bufferReadTo = bufferLength
 		elif sum(pinStates) == 0:
+			buffer = buffer.strip()
 			if buffer == 'uuddlrlrbas':
 				helpMode = not helpMode
 				if helpMode:
-					screentools.showBinaryTable()
 					display('I can help!')
 				else:
-					screentools.showEncodingTableTable()
 					display('You can do it!')
-			elif buffer != '':
+				time.sleep(1)
+				resetScreen()
+			elif buffer == 'shutdown':
+				sayGoodbyeAndExit(shutdown=True)
+			elif buffer == 'shell':
+				sayGoodbyeAndExit(shutdown=False)
+			elif len(buffer) > 0:
 				display(buffer)
-				buffer = ''
-				bufferReadTo = 0
+			bufferReadTo = 0
+			buffer = ''
 except KeyboardInterrupt:
 	sayGoodbyeAndExit()
 	
