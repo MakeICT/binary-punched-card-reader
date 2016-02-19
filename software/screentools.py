@@ -89,7 +89,7 @@ if __name__ == "__main__":
 	showEncodingTable()
 	buff = ''
 	time.sleep(1)
-	for l in 'You can do it!':
+	for l in 'dominic':
 		gotoOutputArea()
 		buff += l
 		#voice.synth(l)

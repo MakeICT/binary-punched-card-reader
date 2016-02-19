@@ -24,7 +24,9 @@ def speak(pronounced):
 def sayGoodbyeAndExit(signal=None, frame=None, shutdown=False):
 	display("Goodbye!")
 	if shutdown:
+		time.sleep(2)
 		os.system('poweroff')
+	os.system('reset')
 	sys.exit(0)
 	
 def resetScreen():
