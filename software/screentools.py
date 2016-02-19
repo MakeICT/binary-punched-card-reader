@@ -56,7 +56,7 @@ def showBinaryTable():
 	buffer = ''
 	for c in range(26):
 		# convert to binary, pad zeroes, reverse it
-		table.append(bin(c+1)[2:].zfill(5)[::-1])
+		table.append(bin(c+1)[2:].zfill(5))
 		buffer += chr(c + ord('a')) + ' '
 		
 	renderCentered(buffer, 4)
