@@ -41,7 +41,7 @@ bonusChars = {
 }
 escapeFlag = False
 def checkPins():
-	global pinStates, holeStates, buffer
+	global pinStates, holeStates, buffer, escapeFlag
 	while True:
 		if wiringpi2.digitalRead(shutdownPin) == 0:
 			pass
