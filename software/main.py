@@ -34,6 +34,12 @@ def resetScreen():
 	else:
 		screentools.showEncodingTable()
 
+bonusChars = {
+	27: '-',
+	28: '!',
+	29: ' '
+}
+escapeFlag = False
 def checkPins():
 	global pinStates, holeStates, buffer
 	while True:
@@ -53,13 +59,20 @@ def checkPins():
 					value += pow(2, len(holeStates)-place-1) * digit
 					
 				# decode it and append it to the buffer
-				currentChar = chr(value + ord('a') - 1)
-				buffer += currentChar
-				
+				if escapeFlag:
+					buffer += str(value)
+					escapeFlag = False
+				else:
+					if value in bonusChars:
+						buffer += bonusChars[value]
+					elif value == 30:
+						escapeFlag = True
+					else:
+						buffer += chr(value + ord('a') - 1)
+					
 				# reset hole buffer
 			holeStates = [ 0 ] * len(inputPins)
 			time.sleep(0.01)
-
 	
 signal.signal(signal.SIGTERM, sayGoodbyeAndExit)
 wiringpi2.wiringPiSetupGpio()
