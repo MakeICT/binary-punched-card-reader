@@ -1,0 +1,13 @@
+[Unit]
+Description=Binary punched card reader
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/binary-punched-card-reader/software/main.py
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+
+[Install]
+WantedBy=multi-user.target
